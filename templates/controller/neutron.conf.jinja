@@ -1,0 +1,53 @@
+[DEFAULT]
+auth_strategy = keystone
+state_path = /var/lib/neutron
+lock_path = $state_path/lock
+
+rpc_backend = neutron.openstack.common.rpc.impl_kombu
+rabbit_hosts={{ controller_1 }}:5672,{{ controller_2 }}:5672
+rabbit_userid=rabbitmq
+rabbit_password=123234
+rabbit_retry_interval=1
+rabbit_retry_backoff=2
+rabbit_max_retries=0
+rabbit_durable_queues=false
+rabbit_ha_queues=true
+
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+nova_url = http://{{ vip_hostname }}:8774/v2
+nova_admin_username = nova
+nova_admin_tenant_id = 66acc141d35d4942875b86d831304ef1 
+nova_admin_password = nova
+nova_admin_auth_url = http://{{ vip_hostname }}:35357/v2.0
+
+core_plugin = ml2
+service_plugins = router,lbaas
+allow_overlapping_ips = True
+bind_host = {{ hostname }}
+dhcp_agents_per_network = 2
+api_workers = 4
+rpc_workers = 4
+network_device_mtu = 1450
+
+dhcp_delete_namespaces = True
+router_delete_namespaces = True
+[agent]
+root_helper = sudo neutron-rootwrap /etc/neutron/rootwrap.conf
+
+[database]
+connection = mysql://neutron:neutron@{{ vip_hostname }}/neutron
+max_pool_size=10
+max_retries=-1
+max_overflow=20
+
+[keystone_authtoken]
+auth_uri = http://{{ vip_hostname }}:5000/v2.0
+identity_uri = http://{{ vip_hostname }}:35357
+admin_tenant_name = service
+admin_user = neutron
+admin_password = neutron
+
+[service_providers]
+#service_provider = FIREWALL:Iptables:neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver:default
+service_provider = LOADBALANCER:Haproxy:neutron.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default

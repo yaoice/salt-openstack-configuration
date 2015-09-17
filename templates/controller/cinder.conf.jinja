@@ -1,0 +1,52 @@
+[DEFAULT]
+debug=False
+rpc_backend=rabbit
+rabbit_hosts={{ controller_1 }}:5672,{{ controller_2 }}:5672 
+rabbit_userid=rabbitmq
+rabbit_password=123234
+rabbit_ha_queues=true
+rabbit_retry_interval=1
+rabbit_retry_backoff=2
+rabbit_max_retries=0
+rabbit_durable_queues=false
+auth_strategy = keystone
+collector_workers = 2
+notification_workers = 2
+[api]
+host=controller-59
+pecan_debug=False
+[database]
+connection = mongodb://ceilometer:ceilometer@{{ vip_hostname }}:27017/ceilometer
+time_to_live=604800
+use_tpool=True
+max_pool_size=10
+max_retries=-1
+max_overflow=20
+[influxdb]
+influxdb_host={{ vip_hostname }}
+influxdb_port=8087
+influxdb_username=root
+influxdb_password=root
+influxdb_database=ceilometer
+
+[notification]
+ack_on_event_error=true
+store_events=true
+[event]
+definitions_cfg_file=event_definitions.yaml
+drop_unmatched_notifications=true
+[hardware]
+store_events=True
+[publisher]
+metering_secret = ceilometer_token
+[keystone_authtoken]
+admin_user = ceilometer
+admin_tenant_name = service
+auth_uri = http://{{ vip_hostname }}:5000/v2.0
+identity_uri = http://{{ vip_hostname }}:35357
+admin_password = ceilometer
+[service_credentials]
+os_auth_url = http://{{ vip_hostname }}::5000/v2.0
+os_username = ceilometer
+os_tenant_name = service
+os_password = ceilometer

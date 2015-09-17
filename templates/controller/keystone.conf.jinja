@@ -1,0 +1,23 @@
+[DEFAULT]
+admin_token = admin_token
+bind_host = {{ hostname }}
+admin_workers = 4
+public_workers = 4 
+notification_driver = keystone.openstack.common.notifier.rpc_notifier
+[database]
+connection = mysql://keystone:keystone@{{ vip_hostname }}/keystone
+max_pool_size=10
+max_retries=-1
+max_overflow=20
+[cache]
+enabled = true
+expiration_time = 600
+backend=dogpile.cache.memcached
+memcache_servers = {{ vip_hostname }}:11211
+[token]
+caching = true
+provider = keystone.token.providers.uuid.Provider
+
+driver = keystone.token.persistence.backends.memcache.Token 
+[memcache]
+servers = {{ vip_hostname }}:11211

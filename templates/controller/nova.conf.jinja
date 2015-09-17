@@ -1,0 +1,116 @@
+[DEFAULT]
+debug = False
+#image_cache_directory_name = /base-image
+vnc_enabled = True 
+vncserver_listen = 0.0.0.0
+vncserver_proxyclient_address = {{ hostname }} 
+novncproxy_base_url = http://{{ vip }}:6080/vnc_auto.html
+novncproxy_host = controller-59
+
+
+metadata_listen = {{ hostname }}
+osapi_compute_listen = {{ hostname }} 
+ec2_listen = {{ hostname }}
+osapi_compute_workers = 20
+
+api_rate_limit = false
+osapi_max_limit = 5000
+scheduler_default_filters = RetryFilter, AvailabilityZoneFilter, RamFilter, ComputeFilter, ImagePropertiesFilter, JsonFilter,CoreFilter
+until_refresh = 5
+max_age = 86400
+#vcpu_pin_set = 4-$
+cpu_allocation_ratio = 4.0
+ram_allocation_ratio = 1.0
+allow_resize_to_same_host = True
+allow_migrate_to_same_host = True
+auth_strategy = keystone
+api_paste_config=/etc/nova/api-paste.ini
+instances_shared_storage = True
+resume_guests_state_on_host_boot = True
+running_deleted_instance_action = reap
+reserved_host_memory_mb = 4096
+reserved_host_disk_mb = 10240
+service_down_time = 120
+rpc_response_timeout = 300
+
+connection_type=libvirt
+compute_driver=libvirt.LibvirtDriver
+
+quota_cores = 120
+quota_instances = 30
+quota_ram = 512000
+
+rpc_backend = rabbit 
+network_api_class=nova.network.neutronv2.api.API
+
+linuxnet_interface_driver = nova.network.linux_net.LinuxOVSInterfaceDriver
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+security_group_api = neutron
+
+rabbit_hosts={{ controller_1 }}:5672,{{ controller_2 }}:5672 
+rabbit_userid=rabbitmq
+rabbit_password=123234
+rabbit_retry_interval=1
+rabbit_retry_backoff=2
+rabbit_max_retries=0
+rabbit_durable_queues=false
+rabbit_ha_queues=true
+memcached_servers = {{ vip_hostname }}:11211
+
+connection_type=libvirt
+compute_driver=libvirt.LibvirtDriver
+
+instance_usage_audit=True
+instance_usage_audit_period=month
+notify_on_state_change=vm_and_task_stat
+notification_driver = nova.openstack.common.notifier.rpc_notifier
+notification_driver = ceilometer.compute.nova_notifier
+vif_plugging_timeout = 10
+vif_plugging_is_fatal = False
+
+[glance]
+api_servers={{ vip_hostname }}:9292
+
+[conductor]
+workers = 20
+
+[neutron]
+url=http://{{ vip_hostname }}:9696
+auth_strategy=keystone
+admin_tenant_name=service
+admin_username=neutron
+admin_password=neutron
+admin_auth_url=http://{{ vip_hostname }}:35357/v2.0
+metadata_proxy_shared_secret = meta_pass
+service_metadata_proxy = True
+
+[database]
+connection = mysql://nova:nova@{{ vip_hostname }}/nova
+max_pool_size=10
+max_retries=-1
+max_overflow=20
+use_tpool=True
+
+[libvirt]
+inject_password = True
+inject_key = True
+inject_partition = -1
+virt_type = kvm
+live_migration_flag=VIR_MIGRATE_UNDEFINE_SOURCE,VIR_MIGRATE_PEER2PEER,VIR_MIGRATE_LIVE,VIR_MIGRATE_PERSIST_DEST
+disk_cachemodes="file=directsync","block=none"
+qemu_allowed_storage_drivers = gluster
+
+[spice]
+enabled = True
+agent_enabled = True
+keymap=en-us
+html5proxy_base_url=http://{{ vip_hostname }}:6082/spice_auto.html
+server_listen = 0.0.0.0
+server_proxyclient_address = {{ hostname }}
+
+[keystone_authtoken]
+auth_uri = http://{{ vip_hostname }}:5000/v2.0
+identity_uri = http://{{ vip_hostname }}:35357
+admin_user = nova
+admin_tenant_name = service
+admin_password = nova

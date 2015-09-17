@@ -1,0 +1,40 @@
+[DEFAULT]
+bind_host = {{ hostname }}
+bind_port = 9292
+registry_host = {{ hostname }}
+registry_port = 9191
+registry_client_protocol = http
+notifier_strategy=noop
+rabbit_hosts={{ controller_1 }}:5672,{{ controller_2 }}:5672
+rabbit_userid=rabbitmq
+rabbit_password=123234
+rabbit_retry_interval=1
+rabbit_retry_backoff=2
+rabbit_max_retries=0
+rabbit_durable_queues=false
+rabbit_ha_queues=true
+
+workers = 4
+api_limit_max = 1000
+limit_param_default = 1000
+
+notification_driver = messaging
+[glance_store]
+default_store = file
+filesystem_store_datadir=/var/lib/glance/images/
+
+[database]
+connection = mysql://glance:glance@{{ vip_hostname }}/glance
+max_pool_size=10
+max_retries=-1
+max_overflow=20
+
+[keystone_authtoken]
+auth_uri = http://{{ vip_hostname }}:5000/v2.0
+identity_uri = http://{{ vip_hostname }}:35357
+admin_user = glance
+admin_password = glance
+admin_tenant_name = service
+
+[paste_deploy]
+flavor = keystone

@@ -1,0 +1,12 @@
+
+{% set common = {
+   'manage_interface': 'eth0',
+   'data_interface': 'eth1',
+   'vip': '172.16.100.250',
+   'vip_hostname': 'controller',
+   'controllers': ['controller1','controller2'],
+   'glusterfs_shares': 'localhost:/glance',
+   }
+%}
+
+{% set data_ip = grains['ip_interfaces'].get(common.data_interface,'eth0') %}
